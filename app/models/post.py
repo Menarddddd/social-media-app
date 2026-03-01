@@ -22,4 +22,4 @@ class Post(Base):
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
 
-    user: Mapped["User"] = relationship("User", back_populates="posts")
+    author: Mapped["User"] = relationship("User", back_populates="posts")

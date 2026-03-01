@@ -1,0 +1,87 @@
+from uuid import UUID
+
+from fastapi import status, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.post import Post
+from app.models.user import User
+from app.repositories.post import (
+    create_post_db,
+    delete_post_db,
+    feed_post_db,
+    get_post_by_id_db,
+    my_posts_db,
+    update_post_db,
+)
+from app.schemas.post import PostCreate, PostUpdate
+
+
+async def create_post_service(
+    form_data: PostCreate,
+    db: AsyncSession,
+    current_user: User,
+):
+    post = Post(**form_data.model_dump(), author=current_user)
+    new_post = await create_post_db(post, db)
+
+    return new_post
+
+
+async def feed_post_service(
+    db: AsyncSession,
+    current_user: User,
+):
+    return await feed_post_db(db)
+
+
+async def my_posts_service(
+    db: AsyncSession,
+    current_user: User,
+):
+    return await my_posts_db(current_user, db)
+
+
+async def update_post_service(
+    post_id: UUID,
+    form_data: PostUpdate,
+    db: AsyncSession,
+    current_user: User,
+):
+
+    post = await get_post_by_id_db(post_id, db)
+
+    if post.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="This post belongs to other user",
+        )
+
+    to_update = form_data.model_dump(exclude_unset=True)
+    updated_post = await update_post_db(to_update, post, db)
+
+    return updated_post
+
+
+async def delete_post_service(
+    post_id: UUID,
+    db: AsyncSession,
+    current_user: User,
+):
+    post = await get_post_by_id_db(post_id, db)
+
+    if post.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This post belongs to other user",
+        )
+
+    await delete_post_db(post, db)
+
+
+async def delete_post_admin_service(
+    post_id: UUID,
+    db: AsyncSession,
+    current_user: User,
+):
+    post = await get_post_by_id_db(post_id, db)
+    await delete_post_db(post, db)
