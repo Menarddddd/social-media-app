@@ -30,12 +30,7 @@ async def _get_user_db(filter_condition, db: AsyncSession):
     stmt = select(User).options(selectinload(User.posts)).where(filter_condition)
 
     result = await db.execute(stmt)
-
     user = result.scalars().first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-        )
 
     return user
 

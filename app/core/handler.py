@@ -11,5 +11,5 @@ def entity_not_found_handler(request: Request, exc: Exception):
 
     return JSONResponse(
         status_code=status.HTTP_404_NOT_FOUND,
-        content={f"{exc.entity}_id": str(exc.id), "message": str(exc)},
+        content={f"{exc.entity.lower()}_id": str(exc.id), "message": str(exc)},
     )

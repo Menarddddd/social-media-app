@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.core.exception import EntityNotFoundException
 from app.core.database import get_db
 from app.core.settings import settings
 from app.models.user import User, Role
@@ -27,6 +28,13 @@ async def get_current_user(
 
         user_id = payload.get("sub")
 
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token payload",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
         result = await db.execute(
             select(User)
             .options(selectinload(User.posts))
@@ -35,9 +43,7 @@ async def get_current_user(
         user = result.scalars().first()
 
         if not user:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-            )
+            raise EntityNotFoundException("User", user_id)
 
         return user
 

@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.exception import EntityNotFoundException
 from app.models.post import Post
 from app.models.user import User
 from app.repositories.post import (
@@ -34,6 +35,14 @@ async def feed_post_service(
     return await feed_post_db(db)
 
 
+async def get_post_service(post_id: UUID, db: AsyncSession, current_user: User):
+    post = await get_post_by_id_db(post_id, db)
+    if not post:
+        raise EntityNotFoundException("Post", post_id)
+
+    return post
+
+
 async def my_posts_service(
     db: AsyncSession,
     current_user: User,
@@ -49,6 +58,8 @@ async def update_post_service(
 ):
 
     post = await get_post_by_id_db(post_id, db)
+    if not post:
+        raise EntityNotFoundException("Post", post_id)
 
     if post.user_id != current_user.id:
         raise HTTPException(
@@ -68,6 +79,8 @@ async def delete_post_service(
     current_user: User,
 ):
     post = await get_post_by_id_db(post_id, db)
+    if not post:
+        raise EntityNotFoundException("Post", post_id)
 
     if post.user_id != current_user.id:
         raise HTTPException(
@@ -84,4 +97,7 @@ async def delete_post_admin_service(
     current_user: User,
 ):
     post = await get_post_by_id_db(post_id, db)
+    if not post:
+        raise EntityNotFoundException("Post", post_id)
+
     await delete_post_db(post, db)

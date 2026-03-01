@@ -14,6 +14,7 @@ from app.services.post import (
     delete_post_admin_service,
     delete_post_service,
     feed_post_service,
+    get_post_service,
     my_posts_service,
     update_post_service,
 )
@@ -37,6 +38,17 @@ async def feed_post(
     current_user: Annotated[User, Depends(get_current_user)],
 ):
     return await feed_post_service(db, current_user)
+
+
+@router.get(
+    "/{post_id}", response_model=PostOnlyResponse, status_code=status.HTTP_200_OK
+)
+async def get_post(
+    post_id: UUID,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    return await get_post_service(post_id, db, current_user)
 
 
 @router.get("", response_model=List[PostOnlyResponse], status_code=status.HTTP_200_OK)

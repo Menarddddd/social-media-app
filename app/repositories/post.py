@@ -13,10 +13,6 @@ async def get_post_by_id_db(id: UUID, db: AsyncSession):
     stmt = select(Post).where(Post.id == id).options(selectinload(Post.author))
     result = await db.execute(stmt)
     post = result.scalars().first()
-    if not post:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
-        )
 
     return post
 
