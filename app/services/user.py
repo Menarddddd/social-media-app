@@ -1,12 +1,17 @@
 from uuid import UUID
 from datetime import datetime, timezone
 
-from fastapi import status, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exception import EntityNotFoundException, DuplicateEntryException
+from app.core.exception import (
+    EntityNotFoundException,
+    DuplicateEntryException,
+    GenericException,
+    LoginException,
+    PasswordException,
+)
 from app.core.helper import get_constraint_name
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User
@@ -33,11 +38,10 @@ async def login_service(
     db: AsyncSession,
 ):
     user = await get_user_by_username_db(form_data.username, db)
+
     if not user or not verify_password(form_data.password, user.password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Username or password is incorrect",
-        )
+        raise LoginException(form_data.username)
+
     access_token = create_access_token({"sub": str(user.id)})
 
     return {"access_token": access_token, "token_type": "bearer"}
@@ -81,16 +85,10 @@ async def change_password_service(
     current_user: User,
 ):
     if not verify_password(form_data.current_password, current_user.password):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Password change failed",
-        )
+        raise PasswordException
 
     if form_data.new_password != form_data.confirm_password:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="New and confirm password must match",
-        )
+        raise GenericException("New and confirm password must match")
 
     hashed_pwd = hash_password(form_data.new_password)
     await change_password_db(hashed_pwd, current_user, db)
@@ -121,9 +119,7 @@ async def delete_profile_service(
     current_user: User,
 ):
     if not verify_password(form_data.password, current_user.password):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Incorrect password"
-        )
+        raise PasswordException()
 
     current_user.deleted_at = datetime.now(timezone.utc)
 

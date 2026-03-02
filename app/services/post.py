@@ -1,6 +1,5 @@
 from uuid import UUID
 
-from fastapi import status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exception import EntityNotFoundException
@@ -51,22 +50,11 @@ async def my_posts_service(
 
 
 async def update_post_service(
-    post_id: UUID,
+    post: Post,
     form_data: PostUpdate,
     db: AsyncSession,
     current_user: User,
 ):
-
-    post = await get_post_by_id_db(post_id, db)
-    if not post:
-        raise EntityNotFoundException("Post", post_id)
-
-    if post.user_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="This post belongs to other user",
-        )
-
     to_update = form_data.model_dump(exclude_unset=True)
     updated_post = await update_post_db(to_update, post, db)
 
@@ -74,20 +62,10 @@ async def update_post_service(
 
 
 async def delete_post_service(
-    post_id: UUID,
+    post: Post,
     db: AsyncSession,
     current_user: User,
 ):
-    post = await get_post_by_id_db(post_id, db)
-    if not post:
-        raise EntityNotFoundException("Post", post_id)
-
-    if post.user_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="This post belongs to other user",
-        )
-
     await delete_post_db(post, db)
 
 
@@ -97,7 +75,7 @@ async def delete_post_admin_service(
     current_user: User,
 ):
     post = await get_post_by_id_db(post_id, db)
-    if not post:
+    if post is None:
         raise EntityNotFoundException("Post", post_id)
 
     await delete_post_db(post, db)

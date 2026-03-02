@@ -1,7 +1,6 @@
 from uuid import UUID
 from datetime import datetime, timezone
 
-from fastapi import status, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -27,7 +26,11 @@ async def deleted_users_db(db: AsyncSession):
 
 # FETCH
 async def _get_user_db(filter_condition, db: AsyncSession):
-    stmt = select(User).options(selectinload(User.posts)).where(filter_condition)
+    stmt = (
+        select(User)
+        .options(selectinload(User.posts))
+        .where(filter_condition, User.deleted_at.is_(None))
+    )
 
     result = await db.execute(stmt)
     user = result.scalars().first()
