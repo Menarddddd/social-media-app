@@ -56,19 +56,8 @@ async def create_user_db(user: User, db: AsyncSession):
         await db.refresh(user, attribute_names=["posts"])
 
     except IntegrityError as e:
-        if "username" in str(e.orig):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Username already exist"
-            )
-        elif "email" in str(e.orig):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exist"
-            )
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Unique constraint failed",
-            )
+        await db.rollback()
+        raise e
 
     return user
 
@@ -84,20 +73,7 @@ async def update_user_db(user_data: dict, user: User, db: AsyncSession):
 
     except IntegrityError as e:
         await db.rollback()
-        if "username" in str(e.orig):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Username already exist"
-            )
-
-        elif "email" in str(e.orig):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exist"
-            )
-
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exist"
-            )
+        raise e
 
     return user
 

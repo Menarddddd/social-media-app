@@ -3,9 +3,11 @@ from datetime import datetime, timezone
 
 from fastapi import status, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exception import EntityNotFoundException
+from app.core.exception import EntityNotFoundException, DuplicateEntryException
+from app.core.helper import get_constraint_name
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User
 from app.repositories.user import (
@@ -49,9 +51,12 @@ async def create_user_service(
     data["password"] = hash_password(data["password"])
     user = User(**data)
 
-    new_user = await create_user_db(user, db)
+    try:
+        return await create_user_db(user, db)
 
-    return new_user
+    except IntegrityError as e:
+        field = get_constraint_name(e)
+        raise DuplicateEntryException(field, data[field])
 
 
 async def get_user_service(user_id: UUID, db: AsyncSession, current_user: User):
@@ -99,7 +104,13 @@ async def update_profile_service(
     current_user: User,
 ):
     user_data = form_data.model_dump(exclude_unset=True)
-    updated_user = await update_user_db(user_data, current_user, db)
+
+    try:
+        updated_user = await update_user_db(user_data, current_user, db)
+
+    except IntegrityError as e:
+        field = get_constraint_name(e)
+        raise DuplicateEntryException(field, user_data[field])
 
     return updated_user
 
