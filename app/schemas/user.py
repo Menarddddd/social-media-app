@@ -41,12 +41,10 @@ class PostPublic(BaseModel):
 
 class UserOnlyResponse(UserBase):
     id: UUID
-    password: str
 
 
 class UserResponse(UserBase):
     id: UUID
-    password: str
     deleted_at: datetime | None
 
     posts: List[PostPublic]
