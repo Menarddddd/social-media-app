@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import List
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, EmailStr
@@ -28,9 +27,17 @@ class UserBase(BaseModel):
     email: EmailStr = Field(min_length=6, max_length=200)
     role: Role
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class UserCreate(UserBase):
     password: str = Field(min_length=6, max_length=200)
+
+
+class UserPublic(BaseModel):
+    id: UUID
+    first_name: str
+    last_name: str
 
 
 class PostPublic(BaseModel):
@@ -39,16 +46,27 @@ class PostPublic(BaseModel):
     content: str
 
 
-class UserOnlyResponse(UserBase):
+class CommentPublic(BaseModel):
     id: UUID
+    message: str
+    author: UserPublic
 
 
 class UserResponse(UserBase):
     id: UUID
 
+
+class UserWithPostResponse(UserBase):
+    id: UUID
+
     posts: List[PostPublic]
 
-    model_config = ConfigDict(from_attributes=True)
+
+class UserLoadedResponse(UserBase):
+    id: UUID
+
+    posts: List[PostPublic]
+    comments: List[CommentPublic]
 
 
 class UserUpdate(BaseModel):
@@ -56,3 +74,19 @@ class UserUpdate(BaseModel):
     last_name: str | None = None
     username: str | None = None
     email: EmailStr | None = None
+
+
+class PostActivity(BaseModel):
+    title: str
+    content: str
+
+
+class CommentActivity(BaseModel):
+    message: str
+
+
+class UserActivityResponse(BaseModel):
+    posts: List[PostActivity]
+    comments: List[CommentActivity]
+
+    model_config = ConfigDict(from_attributes=True)

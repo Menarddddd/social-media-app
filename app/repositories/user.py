@@ -7,12 +7,18 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import IntegrityError
 
 from app.models.user import User
+from app.models.comment import Comment
 
 
 # ADMIN
 async def get_users_db(db: AsyncSession):
     result = await db.execute(
-        select(User).options(selectinload(User.posts)).where(User.deleted_at.is_(None))
+        select(User)
+        .options(
+            selectinload(User.posts),
+            selectinload(User.comments).options(selectinload(Comment.author)),
+        )
+        .where(User.deleted_at.is_(None))
     )
     users = result.scalars().all()
 
@@ -30,7 +36,10 @@ async def deleted_users_db(db: AsyncSession):
 async def _get_user_db(filter_condition, db: AsyncSession):
     stmt = (
         select(User)
-        .options(selectinload(User.posts))
+        .options(
+            selectinload(User.posts),
+            selectinload(User.comments).options(selectinload(Comment.author)),
+        )
         .where(filter_condition, User.deleted_at.is_(None))
     )
 
@@ -58,7 +67,7 @@ async def create_user_db(user: User, db: AsyncSession):
 
     try:
         await db.commit()
-        await db.refresh(user, attribute_names=["posts"])
+        await db.refresh(user, attribute_names=["posts", "comments"])
 
     except IntegrityError as e:
         await db.rollback()

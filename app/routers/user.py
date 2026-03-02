@@ -13,7 +13,9 @@ from app.schemas.user import (
     PasswordRequest,
     Token,
     UserCreate,
-    UserOnlyResponse,
+    UserWithPostResponse,
+    UserLoadedResponse,
+    UserActivityResponse,
     UserResponse,
     UserUpdate,
 )
@@ -27,6 +29,7 @@ from app.services.user import (
     get_user_service,
     get_users_service,
     login_service,
+    my_activities_service,
     profile_service,
     update_profile_service,
 )
@@ -55,7 +58,7 @@ async def delete_user(
 
 @router.get(
     "/admin/deleted",
-    response_model=List[UserOnlyResponse],
+    response_model=List[UserResponse],
     status_code=status.HTTP_200_OK,
 )
 async def deleted_users(
@@ -89,7 +92,21 @@ async def profile(
     return await profile_service(db, current_user)
 
 
-@router.get("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
+@router.get(
+    "/activities",
+    response_model=UserActivityResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def my_activities(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    return await my_activities_service(db, current_user)
+
+
+@router.get(
+    "/{user_id}", response_model=UserWithPostResponse, status_code=status.HTTP_200_OK
+)
 async def get_user(
     user_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -107,7 +124,7 @@ async def change_password(
     return await change_password_service(form_data, db, current_user)
 
 
-@router.patch("", response_model=UserOnlyResponse, status_code=status.HTTP_200_OK)
+@router.patch("", response_model=UserResponse, status_code=status.HTTP_200_OK)
 async def update_profile(
     form_data: UserUpdate,
     db: Annotated[AsyncSession, Depends(get_db)],

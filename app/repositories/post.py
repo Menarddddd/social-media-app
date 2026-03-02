@@ -7,10 +7,18 @@ from sqlalchemy.orm import joinedload, selectinload
 
 from app.models.post import Post
 from app.models.user import User
+from app.models.comment import Comment
 
 
 async def get_post_by_id_db(id: UUID, db: AsyncSession):
-    stmt = select(Post).where(Post.id == id).options(selectinload(Post.author))
+    stmt = (
+        select(Post)
+        .where(Post.id == id)
+        .options(
+            selectinload(Post.author),
+            selectinload(Post.comments).options(selectinload(Comment.author)),
+        )
+    )
     result = await db.execute(stmt)
     post = result.scalars().first()
 
@@ -34,7 +42,14 @@ async def create_post_db(post: Post, db: AsyncSession):
 
 
 async def my_posts_db(current_user: User, db: AsyncSession):
-    stmt = select(Post).where(Post.user_id == current_user.id)
+    stmt = (
+        select(Post)
+        .where(Post.user_id == current_user.id)
+        .options(
+            selectinload(Post.author),
+            selectinload(Post.comments).options(selectinload(Comment.author)),
+        )
+    )
     result = await db.execute(stmt)
     posts = result.scalars().all()
 
@@ -46,7 +61,10 @@ async def feed_post_db(db: AsyncSession):
         select(Post)
         .join(Post.author)
         .where(User.deleted_at.is_(None))
-        .options(joinedload(Post.author))
+        .options(
+            joinedload(Post.author),
+            selectinload(Post.comments).options(selectinload(Comment.author)),
+        )
     )
     result = await db.execute(stmt)
     posts = result.scalars().all()

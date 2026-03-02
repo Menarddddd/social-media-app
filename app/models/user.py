@@ -4,12 +4,13 @@ from uuid import UUID
 from sqlalchemy import String, UUID, Enum as SQLEnum, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from enum import Enum
-from datetime import datetime, timezone
+from datetime import datetime
 
 from app.core.database import Base
 
 if TYPE_CHECKING:
     from app.models.post import Post
+    from app.models.comment import Comment
 
 
 class Role(Enum):
@@ -34,3 +35,4 @@ class User(Base):
     posts: Mapped[List["Post"]] = relationship(
         "Post", back_populates="author", cascade="all, delete-orphan"
     )
+    comments: Mapped[List["Comment"]] = relationship("Comment", back_populates="author")

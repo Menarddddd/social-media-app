@@ -33,10 +33,7 @@ from app.schemas.user import (
 )
 
 
-async def login_service(
-    form_data: OAuth2PasswordRequestForm,
-    db: AsyncSession,
-):
+async def login_service(form_data: OAuth2PasswordRequestForm, db: AsyncSession):
     user = await get_user_by_username_db(form_data.username, db)
 
     if not user or not verify_password(form_data.password, user.password):
@@ -47,10 +44,7 @@ async def login_service(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-async def create_user_service(
-    form_data: UserCreate,
-    db: AsyncSession,
-):
+async def create_user_service(form_data: UserCreate, db: AsyncSession):
     data = form_data.model_dump()
     data["password"] = hash_password(data["password"])
     user = User(**data)
@@ -72,17 +66,16 @@ async def get_user_service(user_id: UUID, db: AsyncSession, current_user: User):
 
 
 # added for scalability
-async def profile_service(
-    db: AsyncSession,
-    current_user: User,
-):
+async def profile_service(db: AsyncSession, current_user: User):
+    return current_user
+
+
+async def my_activities_service(db: AsyncSession, current_user: User):
     return current_user
 
 
 async def change_password_service(
-    form_data: ChangePasswordRequest,
-    db: AsyncSession,
-    current_user: User,
+    form_data: ChangePasswordRequest, db: AsyncSession, current_user: User
 ):
     if not verify_password(form_data.current_password, current_user.password):
         raise BadRequestException("Incorrect password")
@@ -97,9 +90,7 @@ async def change_password_service(
 
 
 async def update_profile_service(
-    form_data: UserUpdate,
-    db: AsyncSession,
-    current_user: User,
+    form_data: UserUpdate, db: AsyncSession, current_user: User
 ):
     user_data = form_data.model_dump(exclude_unset=True)
 
@@ -114,9 +105,7 @@ async def update_profile_service(
 
 
 async def delete_profile_service(
-    form_data: PasswordRequest,
-    db: AsyncSession,
-    current_user: User,
+    form_data: PasswordRequest, db: AsyncSession, current_user: User
 ):
     if not verify_password(form_data.password, current_user.password):
         raise ForbiddenException("Incorrect password")
@@ -128,18 +117,11 @@ async def delete_profile_service(
 
 
 # ADMIN
-async def get_users_service(
-    db: AsyncSession,
-    current_user: User,
-):
+async def get_users_service(db: AsyncSession, current_user: User):
     return await get_users_db(db)
 
 
-async def delete_user_service(
-    user_id: UUID,
-    db: AsyncSession,
-    current_user: User,
-):
+async def delete_user_service(user_id: UUID, db: AsyncSession, current_user: User):
     user = await get_user_by_id_db(user_id, db)
     if not user:
         raise EntityNotFoundException("User", user_id)
@@ -147,8 +129,5 @@ async def delete_user_service(
     await delete_user_db(user, db)
 
 
-async def deleted_users_service(
-    db: AsyncSession,
-    current_user: User,
-):
+async def deleted_users_service(db: AsyncSession, current_user: User):
     return await deleted_users_db(db)

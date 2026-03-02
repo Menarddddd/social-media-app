@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from app.routers.user import router as user_router
 from app.routers.post import router as post_router
+from app.routers.comment import router as comment_router
 from app.core.exception import (
     EntityNotFoundException,
     DuplicateEntryException,
@@ -21,6 +22,7 @@ from app.core.handler import (
 def register_routers(app: FastAPI):
     app.include_router(user_router, prefix="/api/users", tags=["users"])
     app.include_router(post_router, prefix="/api/posts", tags=["posts"])
+    app.include_router(comment_router, prefix="/api/comments", tags=["comment"])
 
 
 def register_exception_handlers(app: FastAPI):

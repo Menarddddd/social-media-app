@@ -15,6 +15,7 @@ from app.core.exception import (
 from app.core.database import get_db
 from app.core.settings import settings
 from app.models.user import User, Role
+from app.repositories.comment import get_comment_by_id_db
 from app.repositories.post import get_post_by_id_db
 from app.repositories.user import get_user_by_id_db
 
@@ -65,6 +66,21 @@ async def post_ownership(
         raise ForbiddenException("You do not own this post")
 
     return post
+
+
+async def comment_ownership(
+    comment_id: UUID,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    comment = await get_comment_by_id_db(comment_id, db)
+    if comment is None:
+        raise EntityNotFoundException("Comment", comment_id)
+
+    if comment.user_id != current_user.id:
+        raise ForbiddenException("You do not own this comment")
+
+    return comment
 
 
 def required_role(require_role: Role):
