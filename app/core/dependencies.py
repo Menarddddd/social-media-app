@@ -1,13 +1,17 @@
 import jwt
 from uuid import UUID
 from typing import Annotated
-from fastapi import Depends
+from fastapi import Depends, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.exception import EntityNotFoundException, GenericException, TokenException
+from app.core.exception import (
+    EntityNotFoundException,
+    ForbiddenException,
+    TokenException,
+)
 from app.core.database import get_db
 from app.core.settings import settings
 from app.models.user import User, Role
@@ -58,7 +62,7 @@ async def post_ownership(
         raise EntityNotFoundException("Post", post_id)
 
     if post.user_id != current_user.id:
-        raise GenericException("You do not own this post")
+        raise ForbiddenException("You do not own this post")
 
     return post
 
@@ -66,7 +70,7 @@ async def post_ownership(
 def required_role(require_role: Role):
     def role_checker(current_user: Annotated[User, Depends(get_current_user)]):
         if require_role != current_user.role:
-            raise GenericException("You are not an admin")
+            raise ForbiddenException("You are not an admin")
         return current_user
 
     return role_checker

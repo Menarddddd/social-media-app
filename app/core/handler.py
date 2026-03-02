@@ -6,7 +6,6 @@ from app.core.exception import (
     DuplicateEntryException,
     GenericException,
     LoginException,
-    PasswordException,
     TokenException,
 )
 
@@ -14,9 +13,7 @@ from app.core.exception import (
 def generic_exception_handler(request: Request, exc: Exception):
     assert isinstance(exc, GenericException)
 
-    return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST, content={"message": exc.message}
-    )
+    return JSONResponse(status_code=exc.status, content={"message": exc.message})
 
 
 def login_exception_handler(request: Request, exc: Exception):
@@ -28,15 +25,6 @@ def login_exception_handler(request: Request, exc: Exception):
             "username": exc.username,
             "message": "Username or password is incorrect",
         },
-    )
-
-
-def password_exception_handler(request: Request, exc: Exception):
-    assert isinstance(exc, PasswordException)
-
-    return JSONResponse(
-        status_code=status.HTTP_403_FORBIDDEN,
-        content={"message": "Incorrect password"},
     )
 
 

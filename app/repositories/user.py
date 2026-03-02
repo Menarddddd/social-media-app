@@ -11,7 +11,9 @@ from app.models.user import User
 
 # ADMIN
 async def get_users_db(db: AsyncSession):
-    result = await db.execute(select(User).options(selectinload(User.posts)))
+    result = await db.execute(
+        select(User).options(selectinload(User.posts)).where(User.deleted_at.is_(None))
+    )
     users = result.scalars().all()
 
     return users

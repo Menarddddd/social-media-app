@@ -17,7 +17,7 @@ from app.schemas.user import (
     UserResponse,
     UserUpdate,
 )
-from app.auth.dependencies import get_current_user, required_role
+from app.core.dependencies import get_current_user, required_role
 from app.services.user import (
     change_password_service,
     create_user_service,
@@ -44,7 +44,7 @@ async def get_users(
     return await get_users_service(db, current_user)
 
 
-@router.post("/admin/delete", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/admin/{user_Id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(
     user_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db)],

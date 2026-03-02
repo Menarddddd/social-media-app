@@ -5,7 +5,7 @@ from fastapi.routing import APIRouter
 from fastapi import Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import get_current_user, post_ownership, required_role
+from app.core.dependencies import get_current_user, post_ownership, required_role
 from app.core.database import get_db
 from app.models.post import Post
 from app.models.user import User, Role

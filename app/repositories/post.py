@@ -62,12 +62,9 @@ async def update_post_db(post_data: dict, post: Post, db: AsyncSession):
         await db.commit()
         await db.refresh(post)
 
-    except Exception:
+    except Exception as e:
         await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to update post",
-        )
+        raise e
 
     return post
 
@@ -77,9 +74,6 @@ async def delete_post_db(post: Post, db: AsyncSession):
         await db.delete(post)
         await db.commit()
 
-    except Exception:
+    except Exception as e:
         await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to delete post",
-        )
+        raise e

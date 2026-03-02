@@ -6,13 +6,13 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exception import (
+    BadRequestException,
     EntityNotFoundException,
     DuplicateEntryException,
-    GenericException,
+    ForbiddenException,
     LoginException,
-    PasswordException,
 )
-from app.core.helper import get_constraint_name
+from app.core.utils import get_constraint_name
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User
 from app.repositories.user import (
@@ -85,10 +85,10 @@ async def change_password_service(
     current_user: User,
 ):
     if not verify_password(form_data.current_password, current_user.password):
-        raise PasswordException
+        raise BadRequestException("Incorrect password")
 
     if form_data.new_password != form_data.confirm_password:
-        raise GenericException("New and confirm password must match")
+        raise BadRequestException("New and confirm password must match")
 
     hashed_pwd = hash_password(form_data.new_password)
     await change_password_db(hashed_pwd, current_user, db)
@@ -119,7 +119,7 @@ async def delete_profile_service(
     current_user: User,
 ):
     if not verify_password(form_data.password, current_user.password):
-        raise PasswordException()
+        raise ForbiddenException("Incorrect password")
 
     current_user.deleted_at = datetime.now(timezone.utc)
 

@@ -2,7 +2,10 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exception import EntityNotFoundException
+from app.core.exception import (
+    EntityNotFoundException,
+    UnprocessableException,
+)
 from app.models.post import Post
 from app.models.user import User
 from app.repositories.post import (
@@ -56,7 +59,12 @@ async def update_post_service(
     current_user: User,
 ):
     to_update = form_data.model_dump(exclude_unset=True)
-    updated_post = await update_post_db(to_update, post, db)
+
+    try:
+        updated_post = await update_post_db(to_update, post, db)
+
+    except Exception as e:
+        raise UnprocessableException("Post update failed")
 
     return updated_post
 
@@ -66,7 +74,11 @@ async def delete_post_service(
     db: AsyncSession,
     current_user: User,
 ):
-    await delete_post_db(post, db)
+    try:
+        await delete_post_db(post, db)
+
+    except Exception as e:
+        raise UnprocessableException("Delete post failed")
 
 
 async def delete_post_admin_service(

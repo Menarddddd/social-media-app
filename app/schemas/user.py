@@ -45,7 +45,6 @@ class UserOnlyResponse(UserBase):
 
 class UserResponse(UserBase):
     id: UUID
-    deleted_at: datetime | None
 
     posts: List[PostPublic]
 
