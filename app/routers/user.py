@@ -2,7 +2,7 @@ from uuid import UUID
 from typing import Annotated, List
 
 from fastapi.routing import APIRouter
-from fastapi import Depends, status
+from fastapi import Depends, status, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,6 +10,7 @@ from app.core.database import get_db
 from app.models.user import Role, User
 from app.schemas.user import (
     ChangePasswordRequest,
+    EmailRequest,
     PasswordRequest,
     Token,
     UserCreate,
@@ -31,6 +32,7 @@ from app.services.user import (
     login_service,
     my_activities_service,
     profile_service,
+    set_email_service,
     update_profile_service,
 )
 
@@ -104,6 +106,17 @@ async def my_activities(
     return await my_activities_service(db, current_user)
 
 
+@router.post("/set_email", status_code=status.HTTP_200_OK)
+async def set_email(
+    form_data: EmailRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    background_tasks: BackgroundTasks,
+):
+
+    return await set_email_service(form_data, db, current_user, background_tasks)
+
+
 @router.get(
     "/{user_id}", response_model=UserWithPostResponse, status_code=status.HTTP_200_OK
 )
@@ -120,8 +133,9 @@ async def change_password(
     form_data: ChangePasswordRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
+    background_tasks: BackgroundTasks,
 ):
-    return await change_password_service(form_data, db, current_user)
+    return await change_password_service(form_data, db, current_user, background_tasks)
 
 
 @router.patch("", response_model=UserResponse, status_code=status.HTTP_200_OK)

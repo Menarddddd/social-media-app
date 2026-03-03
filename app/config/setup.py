@@ -3,14 +3,14 @@ from fastapi import FastAPI
 from app.routers.user import router as user_router
 from app.routers.post import router as post_router
 from app.routers.comment import router as comment_router
-from app.core.exception import (
+from app.exceptions.exception import (
     EntityNotFoundException,
     DuplicateEntryException,
     GenericException,
     LoginException,
     TokenException,
 )
-from app.core.handler import (
+from app.exceptions.handler import (
     entity_not_found_handler,
     duplicate_entry_exception_handler,
     login_exception_handler,

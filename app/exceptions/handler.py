@@ -1,7 +1,7 @@
 from fastapi import status, Request
 from fastapi.responses import JSONResponse
 
-from app.core.exception import (
+from app.exceptions.exception import (
     EntityNotFoundException,
     DuplicateEntryException,
     GenericException,

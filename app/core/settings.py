@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     SECRET_KEY: SecretStr
     ALGORITHM: str
     EXPIRE_MINUTES: int
+    EMAIL_USER: SecretStr
+    EMAIL_PASS: SecretStr
 
 
 settings = Settings()  # type: ignore

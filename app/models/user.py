@@ -25,7 +25,7 @@ class User(Base):
     first_name: Mapped[str] = mapped_column(String(100), nullable=False)
     last_name: Mapped[str] = mapped_column(String(100), nullable=False)
     username: Mapped[str] = mapped_column(String(200), unique=True, nullable=False)
-    email: Mapped[str] = mapped_column(String(200), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(200), unique=True, nullable=True)
     password: Mapped[str] = mapped_column(String(200), nullable=False)
     role: Mapped[Role] = mapped_column(SQLEnum(Role), default=Role.USER, nullable=False)
     deleted_at: Mapped[datetime | None] = mapped_column(

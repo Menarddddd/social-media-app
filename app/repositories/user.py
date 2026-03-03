@@ -97,6 +97,16 @@ async def change_password_db(hashed_pwd: str, user: User, db: AsyncSession):
     await db.commit()
 
 
+async def set_email_db(email: str, user: User, db: AsyncSession):
+    try:
+        user.email = email
+        await db.commit()
+
+    except IntegrityError as e:
+        await db.rollback()
+        raise e
+
+
 # DELETE
 async def delete_user_db(user: User, db: AsyncSession):
     user.deleted_at = datetime.now(timezone.utc)

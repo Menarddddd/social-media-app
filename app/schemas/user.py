@@ -14,6 +14,10 @@ class PasswordRequest(BaseModel):
     password: str
 
 
+class EmailRequest(BaseModel):
+    email: EmailStr
+
+
 class ChangePasswordRequest(BaseModel):
     current_password: str = Field(min_length=6, max_length=200)
     new_password: str = Field(min_length=6, max_length=200)
@@ -24,7 +28,7 @@ class UserBase(BaseModel):
     first_name: str = Field(min_length=2, max_length=100)
     last_name: str = Field(min_length=2, max_length=100)
     username: str = Field(min_length=6, max_length=200)
-    email: EmailStr = Field(min_length=6, max_length=200)
+    email: EmailStr | None = Field(default=None, min_length=6, max_length=200)
     role: Role
 
     model_config = ConfigDict(from_attributes=True)

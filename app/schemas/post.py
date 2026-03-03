@@ -17,6 +17,7 @@ class PostCreate(PostBase):
 
 
 class UserPublic(BaseModel):
+    id: UUID
     first_name: str
     last_name: str
 

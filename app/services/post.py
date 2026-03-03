@@ -2,7 +2,7 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exception import (
+from app.exceptions.exception import (
     EntityNotFoundException,
     UnprocessableException,
 )

@@ -1,18 +1,21 @@
 from uuid import UUID
 from datetime import datetime, timezone
 
+from fastapi import BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exception import (
+from app.exceptions.exception import (
     BadRequestException,
     EntityNotFoundException,
     DuplicateEntryException,
     ForbiddenException,
     LoginException,
 )
-from app.core.utils import get_constraint_name
+from app.utils.task import send_email
+from app.utils.email_msg import set_email, pwd_change_email
+from app.utils.utils import get_constraint_name
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User
 from app.repositories.user import (
@@ -23,10 +26,12 @@ from app.repositories.user import (
     get_user_by_id_db,
     get_user_by_username_db,
     get_users_db,
+    set_email_db,
     update_user_db,
 )
 from app.schemas.user import (
     ChangePasswordRequest,
+    EmailRequest,
     PasswordRequest,
     UserCreate,
     UserUpdate,
@@ -74,8 +79,32 @@ async def my_activities_service(db: AsyncSession, current_user: User):
     return current_user
 
 
+async def set_email_service(
+    form_data: EmailRequest,
+    db: AsyncSession,
+    current_user: User,
+    background_tasks: BackgroundTasks,
+):
+
+    try:
+        await set_email_db(form_data.email, current_user, db)
+    except IntegrityError:
+        raise DuplicateEntryException("Email", form_data.email)
+
+    background_tasks.add_task(
+        send_email, form_data.email, "Email linked successfuly", set_email
+    )
+
+    return {
+        "message": "You've successfully set up your email. Check your email we've sent you an email"
+    }
+
+
 async def change_password_service(
-    form_data: ChangePasswordRequest, db: AsyncSession, current_user: User
+    form_data: ChangePasswordRequest,
+    db: AsyncSession,
+    current_user: User,
+    background_tasks: BackgroundTasks,
 ):
     if not verify_password(form_data.current_password, current_user.password):
         raise BadRequestException("Incorrect password")
@@ -85,6 +114,10 @@ async def change_password_service(
 
     hashed_pwd = hash_password(form_data.new_password)
     await change_password_db(hashed_pwd, current_user, db)
+
+    background_tasks.add_task(
+        send_email, current_user.email, "Change Password Successful", pwd_change_email
+    )
 
     return {"message": "Password has been changed successfully."}
 

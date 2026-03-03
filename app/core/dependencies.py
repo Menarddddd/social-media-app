@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.exception import (
+from app.exceptions.exception import (
     EntityNotFoundException,
     ForbiddenException,
     TokenException,

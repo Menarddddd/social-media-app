@@ -14,7 +14,7 @@ from app.core.dependencies import (
     required_role,
 )
 from app.core.database import get_db
-from app.core.exception import BadRequestException, EntityNotFoundException
+from app.exceptions.exception import BadRequestException, EntityNotFoundException
 from app.models.post import Post
 from app.models.user import User
 from app.models.comment import Comment
