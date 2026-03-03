@@ -31,10 +31,11 @@ async def create_post_service(
 
 
 async def feed_post_service(
-    db: AsyncSession,
-    current_user: User,
+    db: AsyncSession, current_user: User, page: int, limit: int
 ):
-    return await feed_post_db(db)
+    offset = (page - 1) * limit
+
+    return await feed_post_db(db, offset, limit)
 
 
 async def get_post_service(post_id: UUID, db: AsyncSession, current_user: User):
@@ -45,11 +46,9 @@ async def get_post_service(post_id: UUID, db: AsyncSession, current_user: User):
     return post
 
 
-async def my_posts_service(
-    db: AsyncSession,
-    current_user: User,
-):
-    return await my_posts_db(current_user, db)
+async def my_posts_service(db: AsyncSession, current_user: User, page: int, limit: int):
+    offset = (page - 1) * limit
+    return await my_posts_db(current_user, db, offset, limit)
 
 
 async def update_post_service(

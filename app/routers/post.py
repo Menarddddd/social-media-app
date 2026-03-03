@@ -2,7 +2,7 @@ from uuid import UUID
 from typing import Annotated, List
 
 from fastapi.routing import APIRouter
-from fastapi import Depends, status
+from fastapi import Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_current_user, post_ownership, required_role
@@ -45,8 +45,10 @@ async def create_post(
 async def feed_post(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
+    page: Annotated[int, Query(ge=1, description="Page number, starts at 1")] = 1,
+    limit: Annotated[int, Query(ge=10, le=50, description="Posts per page")] = 10,
 ):
-    return await feed_post_service(db, current_user)
+    return await feed_post_service(db, current_user, page, limit)
 
 
 @router.get(
@@ -66,8 +68,10 @@ async def get_post(
 async def my_posts(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
+    page: Annotated[int, Query(ge=1, description="Page number, starts at 1")] = 1,
+    limit: Annotated[int, Query(ge=10, le=50, description="Posts per page")] = 10,
 ):
-    return await my_posts_service(db, current_user)
+    return await my_posts_service(db, current_user, page, limit)
 
 
 @router.patch(

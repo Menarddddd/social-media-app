@@ -150,8 +150,12 @@ async def delete_profile_service(
 
 
 # ADMIN
-async def get_users_service(db: AsyncSession, current_user: User):
-    return await get_users_db(db)
+async def get_users_service(
+    page: int, limit: int, db: AsyncSession, current_user: User
+):
+    offset = (page - 1) * limit
+
+    return await get_users_db(offset, limit, db)
 
 
 async def delete_user_service(user_id: UUID, db: AsyncSession, current_user: User):
@@ -162,5 +166,9 @@ async def delete_user_service(user_id: UUID, db: AsyncSession, current_user: Use
     await delete_user_db(user, db)
 
 
-async def deleted_users_service(db: AsyncSession, current_user: User):
-    return await deleted_users_db(db)
+async def deleted_users_service(
+    db: AsyncSession, current_user: User, page: int, limit: int
+):
+    offset = (page - 1) * limit
+
+    return await deleted_users_db(db, offset, limit)

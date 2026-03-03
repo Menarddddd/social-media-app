@@ -11,7 +11,7 @@ from app.models.comment import Comment
 
 
 # ADMIN
-async def get_users_db(db: AsyncSession):
+async def get_users_db(offset: int, limit: int, db: AsyncSession):
     result = await db.execute(
         select(User)
         .options(
@@ -19,14 +19,18 @@ async def get_users_db(db: AsyncSession):
             selectinload(User.comments).options(selectinload(Comment.author)),
         )
         .where(User.deleted_at.is_(None))
+        .offset(offset)
+        .limit(limit)
     )
     users = result.scalars().all()
 
     return users
 
 
-async def deleted_users_db(db: AsyncSession):
-    result = await db.execute(select(User).where(User.deleted_at.isnot(None)))
+async def deleted_users_db(db: AsyncSession, offset: int, limit: int):
+    result = await db.execute(
+        select(User).where(User.deleted_at.isnot(None)).offset(offset).limit(limit)
+    )
     users = result.scalars().all()
 
     return users

@@ -41,7 +41,7 @@ async def create_post_db(post: Post, db: AsyncSession):
     return post
 
 
-async def my_posts_db(current_user: User, db: AsyncSession):
+async def my_posts_db(current_user: User, db: AsyncSession, offset: int, limit: int):
     stmt = (
         select(Post)
         .where(Post.user_id == current_user.id)
@@ -49,6 +49,8 @@ async def my_posts_db(current_user: User, db: AsyncSession):
             selectinload(Post.author),
             selectinload(Post.comments).options(selectinload(Comment.author)),
         )
+        .offset(offset)
+        .limit(limit)
     )
     result = await db.execute(stmt)
     posts = result.scalars().all()
@@ -56,7 +58,7 @@ async def my_posts_db(current_user: User, db: AsyncSession):
     return posts
 
 
-async def feed_post_db(db: AsyncSession):
+async def feed_post_db(db: AsyncSession, offset: int, limit: int):
     stmt = (
         select(Post)
         .join(Post.author)
@@ -65,6 +67,8 @@ async def feed_post_db(db: AsyncSession):
             joinedload(Post.author),
             selectinload(Post.comments).options(selectinload(Comment.author)),
         )
+        .offset(offset)
+        .limit(limit)
     )
     result = await db.execute(stmt)
     posts = result.scalars().all()

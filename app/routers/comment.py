@@ -2,30 +2,13 @@ from uuid import UUID
 from typing import Annotated, List
 
 from fastapi.routing import APIRouter
-from fastapi import Depends, status
-from sqlalchemy import select
+from fastapi import Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
-from app.core.dependencies import (
-    comment_ownership,
-    get_current_user,
-    post_ownership,
-    required_role,
-)
+from app.core.dependencies import comment_ownership, get_current_user
 from app.core.database import get_db
-from app.exceptions.exception import BadRequestException, EntityNotFoundException
-from app.models.post import Post
 from app.models.user import User
 from app.models.comment import Comment
-from app.repositories.comment import (
-    create_comment_db,
-    delete_comment_db,
-    get_comment_by_id_db,
-    get_user_comments_db,
-    update_comment_db,
-)
-from app.repositories.post import get_post_by_id_db
 from app.schemas.comment import (
     CommentCreate,
     CommentResponse,
@@ -61,8 +44,10 @@ async def create_comment(
 async def my_comments(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
+    page: Annotated[int, Query(ge=1, description="Page number, starts at 1")] = 1,
+    limit: Annotated[int, Query(ge=10, le=50, description="Comments per page")] = 10,
 ):
-    return await my_comments_service(db, current_user)
+    return await my_comments_service(db, current_user, page, limit)
 
 
 @router.get(

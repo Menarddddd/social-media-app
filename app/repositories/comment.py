@@ -1,6 +1,5 @@
 from uuid import UUID
 
-from fastapi import status, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -39,7 +38,9 @@ async def create_comment_db(comment: Comment, db: AsyncSession):
     return comment
 
 
-async def get_user_comments_db(db: AsyncSession, current_user: User):
+async def get_user_comments_db(
+    db: AsyncSession, current_user: User, offset: int, limit: int
+):
     stmt = (
         select(Comment)
         .where(Comment.user_id == current_user.id)
@@ -47,6 +48,8 @@ async def get_user_comments_db(db: AsyncSession, current_user: User):
             selectinload(Comment.author),
             selectinload(Comment.post).options(selectinload(Post.author)),
         )
+        .offset(offset)
+        .limit(limit)
     )
 
     result = await db.execute(stmt)

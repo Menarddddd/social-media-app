@@ -2,7 +2,7 @@ from uuid import UUID
 from typing import Annotated, List
 
 from fastapi.routing import APIRouter
-from fastapi import Depends, status, BackgroundTasks
+from fastapi import Depends, status, BackgroundTasks, Query
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -45,8 +45,10 @@ router = APIRouter()
 async def get_users(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(required_role(Role.ADMIN))],
+    page: Annotated[int, Query(ge=1, description="Page number, starts at 1")] = 1,
+    limit: Annotated[int, Query(ge=1, le=50, description="Users per page")] = 10,
 ):
-    return await get_users_service(db, current_user)
+    return await get_users_service(page, limit, db, current_user)
 
 
 @router.delete("/admin/{user_Id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -66,8 +68,10 @@ async def delete_user(
 async def deleted_users(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(required_role(Role.ADMIN))],
+    page: Annotated[int, Query(ge=1, description="Page number, starts at 1")] = 1,
+    limit: Annotated[int, Query(ge=10, le=50, description="Users per page")] = 10,
 ):
-    return await deleted_users_service(db, current_user)
+    return await deleted_users_service(db, current_user, page, limit)
 
 
 # USER
