@@ -1,62 +1,112 @@
-# Social Media App
+Social Media App
 
-## This project allows you to create user and login. Once logged in you can create your own post(s) and make comment(s).
+This project is a backend API that allows users to register, log in, create posts, and add comments. Once logged in, you can create, update, and delete your own posts and comments.
 
-## You can also update and delete your comments and others if you are registered as an admin role
+If you are registered as an admin, you can update or delete comments made by other users.
 
-## There's also an AI that you can ask question
+The app also includes an AI chatbot feature that lets you ask questions, powered by Ollama and the Mistral model. This feature is optional and requires downloading a ~4GB model.
 
-## This app allows you to send an email, if you want you can put an email in .env. Once you set that up and a user register with their real email, it will send a welcome email to them.
+Additionally, the app can send welcome emails to users when they register. To enable this, configure your email in the .env file.
 
-## Note
+Features
 
-### The AI route requires you to download Mistral model(~4gb)
+User authentication (OAuth2 + JWT)
 
-### This is optional you can still use the app without this AI
+Post creation, updating, and deletion
 
-## Features
+Comment creation, updating, and deletion
 
-- User authentication
-- Post creation and deletion
-- Comment creation and deletion
-- Track activities
-- Bot you can ask (optional)
+Track user activities
 
-## Framework and tools
+AI chatbot (optional)
 
-- Oauth2 for authentication
-- JWT for web token
-- FastAPI framework
-- Postgres database
-- AI ollama/mistral
+Email notifications (optional)
 
-# Requirements
+Tech Stack
 
-- Git
-- Docker Desktop
+Backend & Frameworks:
 
-## Installation
+FastAPI – modern, fast Python web framework
 
-### Create an empty folder
+Pydantic – data validation and settings management
 
-- mkdir foldername
+SQLAlchemy – ORM for database modeling and queries
 
-### Go to the folder
+Alembic – database schema migrations (if used)
 
-- cd foldername
+Authentication & Security:
 
-### Clone the repo
+OAuth2 – user authentication
 
-- git clone https://github.com/Menarddddd/social-media-app
+JWT (JSON Web Tokens) – token-based authentication
 
-### Run and create the containers
+Database & Storage:
 
-- docker-compose up --build
+PostgreSQL – relational database
 
-### Pull the Mistral model (OPTIONAL, IF YOU WANT THE AI)
+Docker volumes – persist database data
 
-- docker exec -it ollama ollama pull mistral
+AI Integration (Optional):
 
-### It's all set up now you can go ahead and create an account and login
+Ollama – local AI model runner
 
-- open your browser and go to this http://127.0.0.1:8000/docs
+Mistral model – language model for chatbot
+
+Containerization & Dev Tools:
+
+Docker & Docker Compose – containerization and orchestration
+
+Git – version control
+
+Utilities:
+
+Email sending via SMTP configured in .env
+
+Async programming for concurrent API requests
+
+Requirements
+
+Git
+
+Docker Desktop
+
+Installation
+
+Create a folder for the project
+
+mkdir foldername
+cd foldername
+
+Clone the repository
+
+git clone https://github.com/Menarddddd/social-media-app
+cd social-media-app
+
+Start Docker containers
+
+docker-compose up --build
+
+Optional: Pull the Mistral AI model
+To use the AI chatbot (~4GB download):
+
+docker exec -it ollama ollama pull mistral
+
+Access the API documentation
+Open your browser and go to:
+http://127.0.0.1:8000/docs
+
+Notes
+
+The AI feature is optional. You can still use all other features without downloading the Mistral model.
+
+Email notifications require setting up your SMTP configuration in the .env file.
+
+Quick Start
+
+Register a user
+
+Log in to receive an access token
+
+Create posts and comments
+
+Interact with the AI chatbot (if Mistral is installed)
