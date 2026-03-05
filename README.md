@@ -1,4 +1,4 @@
-Social Media App
+## Social Media App
 
 This project is a backend API that allows users to register, log in, create posts, and add comments. Once logged in, you can create, update, and delete your own posts and comments.
 
@@ -8,7 +8,7 @@ The app also includes an AI chatbot feature that lets you ask questions, powered
 
 Additionally, the app can send welcome emails to users when they register. To enable this, configure your email in the .env file.
 
-Features
+### Features
 
 User authentication (OAuth2 + JWT)
 
@@ -22,9 +22,9 @@ AI chatbot (optional)
 
 Email notifications (optional)
 
-Tech Stack
+### Tech Stack
 
-Backend & Frameworks:
+#### Backend & Frameworks:
 
 FastAPI – modern, fast Python web framework
 
@@ -32,76 +32,78 @@ Pydantic – data validation and settings management
 
 SQLAlchemy – ORM for database modeling and queries
 
-Alembic – database schema migrations (if used)
+Alembic – database schema migrations
 
-Authentication & Security:
+#### Authentication & Security:
 
 OAuth2 – user authentication
 
 JWT (JSON Web Tokens) – token-based authentication
 
-Database & Storage:
+#### Database & Storage:
 
 PostgreSQL – relational database
 
 Docker volumes – persist database data
 
-AI Integration (Optional):
+#### AI Integration (Optional):
 
 Ollama – local AI model runner
 
 Mistral model – language model for chatbot
 
-Containerization & Dev Tools:
+#### Containerization & Dev Tools:
 
 Docker & Docker Compose – containerization and orchestration
 
 Git – version control
 
-Utilities:
+#### Utilities:
 
 Email sending via SMTP configured in .env
 
 Async programming for concurrent API requests
 
-Requirements
+### Requirements
 
 Git
 
 Docker Desktop
 
-Installation
+### Installation
 
-Create a folder for the project
+#### Create a folder for the project
 
 mkdir foldername
 cd foldername
 
-Clone the repository
+#### Clone the repository
 
 git clone https://github.com/Menarddddd/social-media-app
 cd social-media-app
 
-Start Docker containers
+#### Start Docker containers
 
 docker-compose up --build
 
-Optional: Pull the Mistral AI model
+#### Optional: Pull the Mistral AI model
+
 To use the AI chatbot (~4GB download):
 
 docker exec -it ollama ollama pull mistral
 
-Access the API documentation
+#### Access the API documentation
+
 Open your browser and go to:
 http://127.0.0.1:8000/docs
 
-Notes
+### Notes
 
 The AI feature is optional. You can still use all other features without downloading the Mistral model.
 
 Email notifications require setting up your SMTP configuration in the .env file.
 
-Quick Start
+### Quick Start
 
 Register a user
 
