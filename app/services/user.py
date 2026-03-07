@@ -75,8 +75,7 @@ async def sign_up_service(form_data: UserCreate, db: AsyncSession):
     }
 
 
-async def my_profile_service(user_id: UUID, db: AsyncSession, page: int, limit: int):
-    offlimit = (page - 1) * limit
+async def my_profile_service(user_id: UUID, db: AsyncSession):
 
     return await get_active_user_by_id_db(user_id, db, selectinload(User.posts))
 

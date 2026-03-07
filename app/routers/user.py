@@ -86,7 +86,6 @@ async def hard_delete(id: UUID, db: Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(select(User).where(User.id == id))
     user = result.scalars().first()
     await db.delete(user)
-    await db.commit()
 
 
 @router.patch("", response_model=UserResponse, status_code=status.HTTP_200_OK)
