@@ -51,8 +51,10 @@ async def sign_up(form_data: UserCreate, db: Annotated[AsyncSession, Depends(get
 async def get_users(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
+    page: Annotated[int, Query(ge=1)] = 1,
+    limit: Annotated[int, Query(ge=1, le=50)] = 20,
 ):
-    return await get_users_service(db, current_user)
+    return await get_users_service(db, page, limit)
 
 
 @router.get(

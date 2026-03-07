@@ -33,8 +33,10 @@ async def add_user_db(user: User, db: AsyncSession):
     await db.flush()
 
 
-async def get_all_active_users_db(db: AsyncSession):
-    result = await db.execute(select(User).where(User.is_deleted.is_(False)))
+async def get_all_active_users_db(db: AsyncSession, offset: int, limit: int):
+    result = await db.execute(
+        select(User).where(User.is_deleted.is_(False)).offset(offset).limit(limit)
+    )
     users = result.scalars().all()
 
     return users

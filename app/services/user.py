@@ -133,8 +133,10 @@ async def get_user_service(
     return await get_active_user_by_id_db(user_id, db)
 
 
-async def get_users_service(db: AsyncSession, current_user: User):
-    return await get_all_active_users_db(db)
+async def get_users_service(db: AsyncSession, page: int, limit: int):
+    offset = (page - 1) * limit
+
+    return await get_all_active_users_db(db, offset, limit)
 
 
 async def delete_profile_service(
