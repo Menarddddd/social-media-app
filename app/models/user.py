@@ -2,7 +2,14 @@ import uuid
 from typing import List, TYPE_CHECKING
 from uuid import UUID
 from datetime import datetime
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, UUID, UniqueConstraint
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    ForeignKey,
+    String,
+    UUID as PG_UUID,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -16,12 +23,12 @@ if TYPE_CHECKING:
 class UserDeletion(Base):
     __tablename__ = "user_deletions"
 
-    id: Mapped[UUID] = mapped_column(UUID, primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=True)
-    deleted_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
-    reason: Mapped[str] = mapped_column(String(200), nullable=True)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    reason: Mapped[str | None] = mapped_column(String(200), nullable=True)
 
     user: Mapped["User"] = relationship("User", back_populates="user_deletions")
 
@@ -29,7 +36,9 @@ class UserDeletion(Base):
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[UUID] = mapped_column(UUID, primary_key=True, default=uuid.uuid4)
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     first_name: Mapped[str] = mapped_column(String(100), nullable=False)
     last_name: Mapped[str] = mapped_column(String(100), nullable=False)
     username: Mapped[str] = mapped_column(String(200), unique=True, nullable=False)

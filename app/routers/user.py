@@ -1,7 +1,7 @@
 from typing import Annotated, List
 from uuid import UUID
 
-from fastapi import Depends, status
+from fastapi import Depends, Query, status
 from fastapi.routing import APIRouter
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,12 +9,22 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from app.core.database import get_db
 from app.models.user import User
-from app.schemas.user import DeleteProfile, Token, UserCreate, UserResponse, UserUpdate
+from app.schemas.user import (
+    DeleteProfile,
+    Token,
+    UserActivity,
+    UserCreate,
+    UserResponse,
+    UserUpdate,
+    UserWithPostResponse,
+)
 from app.core.dependency import get_current_user
 from app.services.user import (
     delete_profile_service,
     get_user_service,
     get_users_service,
+    get_activate_user_with_activities_service,
+    my_profile_service,
     sign_in_service,
     sign_up_service,
     update_profile_service,
@@ -45,12 +55,28 @@ async def get_users(
     return await get_users_service(db, current_user)
 
 
-@router.get("/profile", response_model=UserResponse, status_code=status.HTTP_200_OK)
+@router.get(
+    "/profile", response_model=UserWithPostResponse, status_code=status.HTTP_200_OK
+)
 async def my_profile(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
+    page: Annotated[int, Query(ge=1)] = 1,
+    limit: Annotated[int, Query(ge=1, le=50)] = 20,
 ):
-    return current_user
+    return await my_profile_service(current_user.id, db, page, limit)
+
+
+@router.get("/activities", response_model=UserActivity, status_code=status.HTTP_200_OK)
+async def my_activities(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    page: Annotated[int, Query(ge=1)] = 1,
+    limit: Annotated[int, Query(ge=1, le=50)] = 20,
+):
+    return await get_activate_user_with_activities_service(
+        db, current_user, page, limit
+    )
 
 
 @router.delete("/delete_user", status_code=status.HTTP_204_NO_CONTENT)
@@ -76,7 +102,7 @@ async def get_user(
     db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    return get_user_service(user_id, db, current_user)
+    return await get_user_service(user_id, db, current_user)
 
 
 @router.post("/delete", status_code=status.HTTP_204_NO_CONTENT)

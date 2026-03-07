@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, timezone, timedelta
 from typing import List, TYPE_CHECKING
 from uuid import UUID
-from sqlalchemy import Boolean, DateTime, String, UUID, ForeignKey, Text
+from sqlalchemy import Boolean, DateTime, String, UUID as PG_UUID, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -15,7 +15,9 @@ if TYPE_CHECKING:
 class RefreshToken(Base):
     __tablename__ = "refersh_tokens"
 
-    id: Mapped[UUID] = mapped_column(UUID, primary_key=True, default=uuid.uuid4)
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     device_name: Mapped[str] = mapped_column(String(100))
     device_id: Mapped[UUID] = mapped_column(String(255), nullable=False)

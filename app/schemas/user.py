@@ -38,3 +38,27 @@ class UserUpdate(BaseModel):
     last_name: str | None = None
     username: str | None = None
     email: EmailStr | None = None
+
+
+class PostPublic(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    title: str
+    content: str
+
+
+class CommentPublic(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    message: str
+
+
+class UserWithPostResponse(UserResponse):
+    posts: List[PostPublic]
+
+
+class UserActivity(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    posts: List[PostPublic]
+    comments: List[CommentPublic]

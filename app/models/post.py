@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import List, TYPE_CHECKING
 from uuid import UUID
-from sqlalchemy import DateTime, String, UUID, ForeignKey, Text
+from sqlalchemy import DateTime, String, UUID as PG_UUID, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -15,7 +15,9 @@ if TYPE_CHECKING:
 class Post(Base):
     __tablename__ = "posts"
 
-    id: Mapped[UUID] = mapped_column(UUID, primary_key=True, default=uuid.uuid4)
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     date_created: Mapped[datetime] = mapped_column(

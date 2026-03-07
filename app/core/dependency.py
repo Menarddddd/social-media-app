@@ -10,7 +10,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.settings import settings
+from app.exceptions.exception import FieldNotFoundException
 from app.models.user import User
+from app.repositories.post import get_post_by_id_db
 from app.repositories.user import get_active_user_by_id_db
 
 
@@ -58,3 +60,21 @@ async def get_current_user(
 
     except PyJWTError:
         raise credentials_exc
+
+
+async def post_owner(
+    post_id: UUID,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    post = await get_post_by_id_db(post_id, db)
+    if not post:
+        raise FieldNotFoundException("post", str(post_id))
+
+    if post.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have the permission to modify this post",
+        )
+
+    return post
