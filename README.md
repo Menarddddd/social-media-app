@@ -14,7 +14,7 @@ A simple social media backend + server-rendered web UI built with **FastAPI**, *
   - Comment on posts
   - Pagination
 - View other users’ profiles
-- Soft delete users (optional depending on your implementation)
+- Soft delete users
 
 ## Tech Stack
 
