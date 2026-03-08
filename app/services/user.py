@@ -8,7 +8,6 @@ from sqlalchemy.orm import selectinload
 
 from app.core.security import (
     create_access_token,
-    create_refresh_token,
     hash_password,
     verify_password,
 )
@@ -45,13 +44,8 @@ async def sign_in_service(
         raise InvalidCredentialsError()
 
     access_token = create_access_token({"sub": str(user.id)})
-    refresh_token = create_refresh_token({"sub": str(user.id)})
 
-    return {
-        "access_token": access_token,
-        "token_type": "Bearer",
-        "refresh_token": refresh_token,
-    }
+    return {"access_token": access_token, "token_type": "Bearer"}
 
 
 async def sign_up_service(form_data: UserCreate, db: AsyncSession):

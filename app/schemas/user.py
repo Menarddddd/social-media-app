@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field, ConfigDict, EmailStr
 class Token(BaseModel):
     access_token: str
     token_type: str
-    refresh_token: str
 
 
 class DeleteProfile(BaseModel):
