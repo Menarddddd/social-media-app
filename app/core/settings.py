@@ -11,10 +11,6 @@ class Settings(BaseSettings):
 
     ACCESS_SECRET_KEY: SecretStr
     ACCESS_EXPIRE_MINUTES: int
-
-    REFRESH_SECRET_KEY: SecretStr
-    REFRESH_EXPIRE_DAYS: int
-
     ALGORITHM: str
 
 
